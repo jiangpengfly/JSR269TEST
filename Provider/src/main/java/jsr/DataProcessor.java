@@ -65,7 +65,36 @@ public class DataProcessor extends AbstractProcessor {
         //设置返回值类型
         JCTree.JCExpression returnMethodType = jcVariableDecl.vartype;
         ListBuffer<JCTree.JCStatement> statements = new ListBuffer<>();
-        statements.append(treeMaker.Return(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName())));
+        //statements.append(treeMaker.Return(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName())));
+        JCTree.JCNewClass combatJCTreeMain = treeMaker.NewClass(
+                null,
+                com.sun.tools.javac.util.List.nil(),
+                treeMaker.Ident(names.fromString("Util")),
+                com.sun.tools.javac.util.List.nil(),
+                null
+        );
+
+        statements.append(
+                treeMaker.VarDef(
+                        treeMaker.Modifiers(Flags.PARAMETER),
+                        names.fromString("util"),
+                        treeMaker.Ident(names.fromString("Util")),
+                        combatJCTreeMain
+                )
+        );
+
+        JCTree.JCExpressionStatement jcExpressionStatement = treeMaker.Exec(
+                treeMaker.Apply(
+                        com.sun.tools.javac.util.List.nil(),
+                        treeMaker.Select(
+                                treeMaker.Ident(names.fromString("util")), // . 左边的内容
+                                names.fromString("test") // . 右边的内容
+                        ),
+                        com.sun.tools.javac.util.List.of(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName()))
+                )
+        );
+        statements.append(treeMaker.Return(jcExpressionStatement.getExpression()));
+
         //设置方法体
         JCTree.JCBlock methodBody = treeMaker.Block(0, statements.toList());
         List<JCTree.JCTypeParameter> methodGenericParams = List.nil();
