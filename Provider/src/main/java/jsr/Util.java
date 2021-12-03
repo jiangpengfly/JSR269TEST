@@ -6,7 +6,7 @@ package jsr;
  * @description:
  */
 public class Util {
-    public String test(String s){
+    public static String test(String s){
         System.out.println("执行util方法"+s);
         return s+s;
     }

@@ -93,7 +93,10 @@ public class DataProcessor extends AbstractProcessor {
                         com.sun.tools.javac.util.List.of(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName()))
                 )
         );
-        statements.append(treeMaker.Return(jcExpressionStatement.getExpression()));
+        //statements.append(treeMaker.Return(jcExpressionStatement.getExpression()));
+        List<JCTree.JCExpression> var2 = List.nil();
+        var2 = var2.append(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName()));
+        statements.append(treeMaker.Return(treeMaker.Apply(com.sun.tools.javac.util.List.nil(), memberAccess("jsr.Util.test"), var2)));
 
         //设置方法体
         JCTree.JCBlock methodBody = treeMaker.Block(0, statements.toList());
@@ -146,5 +149,15 @@ public class DataProcessor extends AbstractProcessor {
     private Name setMethodName(Name name) {
         String s = name.toString();
         return names.fromString("set" + s.substring(0, 1).toUpperCase() + s.substring(1, name.length()));
+    }
+
+    //传入一个类的全路径名，获取对应类的JCIdent
+    private JCTree.JCExpression memberAccess(String components) {
+        String[] componentArray = components.split("\\.");
+        JCTree.JCExpression expr = treeMaker.Ident(names.fromString(componentArray[0]));
+        for (int i = 1; i < componentArray.length; i++) {
+            expr = treeMaker.Select(expr, names.fromString(componentArray[i]));
+        }
+        return expr;
     }
 }

@@ -1,5 +1,7 @@
 package jsr;
 
+import rmd.Data;
+
 @Data
 public class App {
     private String value;

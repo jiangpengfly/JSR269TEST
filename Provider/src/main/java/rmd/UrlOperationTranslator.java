@@ -23,9 +23,9 @@ import java.util.Set;
  * Getter Setter toString
  *
  */
-@SupportedAnnotationTypes("rmd.Data")
+@SupportedAnnotationTypes("rmd.Url")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class DataOperationTranslator extends AbstractProcessor {
+public class UrlOperationTranslator extends AbstractProcessor {
 
     private JavacTrees trees;
     private TreeMaker treeMaker;
@@ -42,7 +42,7 @@ public class DataOperationTranslator extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        roundEnv.getElementsAnnotatedWith(Data.class).stream().map(element -> trees.getTree(element)).forEach(t -> t.accept(new TreeTranslator() {
+        roundEnv.getElementsAnnotatedWith(Url.class).stream().map(element -> trees.getTree(element)).forEach(t -> t.accept(new TreeTranslator() {
             @Override
             public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
                 jcClassDecl.defs.stream().filter(k -> k.getKind().equals(Tree.Kind.VARIABLE)).map(tree -> (JCTree.JCVariableDecl) tree).forEach(jcVariableDecl -> {
@@ -60,22 +60,8 @@ public class DataOperationTranslator extends AbstractProcessor {
                 jcClassDecl.defs = jcClassDecl.defs.append(hashCodeMethod);
                 JCTree.JCMethodDecl equalsMethod = makeEqualsMethod(jcClassDecl);
                 jcClassDecl.defs = jcClassDecl.defs.append(equalsMethod);
-
             }
         }));
-
-        /*roundEnv.getElementsAnnotatedWith(Data.class).stream().forEach(t ->{
-            String importClass = "jsr.Util";
-            JCTree.JCCompilationUnit compilationUnit = (JCTree.JCCompilationUnit) trees.getPath(t).getCompilationUnit();
-            JCTree.JCFieldAccess fieldAccess = treeMaker.Select(treeMaker.Ident(names.fromString(importClass.substring(0, importClass.lastIndexOf(".")))), names.fromString(importClass.substring(importClass.lastIndexOf(".") + 1)));
-            JCTree.JCImport jcImport = treeMaker.Import(fieldAccess, false);
-            ListBuffer<JCTree> imports = new ListBuffer<>();
-            imports.append(jcImport);
-            for (int i = 0; i < compilationUnit.defs.size(); i++) {
-                imports.append(compilationUnit.defs.get(i));
-            }
-            compilationUnit.defs = imports.toList();
-        });*/
 
         return true;
     }
@@ -85,13 +71,13 @@ public class DataOperationTranslator extends AbstractProcessor {
         JCTree.JCExpression retrunType = jcVariableDecl.vartype;//xxx
         Name name = getterMethodName(jcVariableDecl);// getXxx
 
-        List<JCTree.JCExpression> var2 = List.nil();//加上三行，第一行
-        var2 = var2.append(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName()));//加上三行，第二行
+        List<JCTree.JCExpression> var2 = List.nil();
+        var2 = var2.append(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.getName()));
 
         JCTree.JCStatement jcStatement = // retrun this.xxx
-                //treeMaker.Return(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.name));//注释掉这一行，实现Util.test方法执行
+                //treeMaker.Return(treeMaker.Select(treeMaker.Ident(names.fromString("this")), jcVariableDecl.name));
 
-        treeMaker.Return(treeMaker.Apply(com.sun.tools.javac.util.List.nil(), memberAccess("jsr.Util.test"), var2));//加上三行，第三行
+        treeMaker.Return(treeMaker.Apply(List.nil(), memberAccess("jsr.Util.test"), var2));
 
         List<JCTree.JCStatement> jcStatementList = List.nil();
         jcStatementList = jcStatementList.append(jcStatement);
